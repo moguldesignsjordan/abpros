@@ -1,4 +1,7 @@
+// src/pages/Home.jsx
 import { useState, useEffect, useRef } from "react";
+import { Link, useOutletContext } from "react-router-dom";
+import { getFeaturedProjects, urlFor } from "../lib/sanity";
 
 // ─── CONFIG ─────────────────────────────────────────────────────────
 const BRAND = {
@@ -7,6 +10,127 @@ const BRAND = {
   light: "#f8f9fa",
   midnight: "#03002e",
   slate: "#1a1a2e",
+};
+
+// ─── THEME SYSTEM ───────────────────────────────────────────────────
+
+const T = {
+  dark: {
+    navBg: "rgba(8,1,80,0.97)",
+    navLink: "rgba(255,255,255,0.7)",
+    mobileMenuBg: BRAND.dark,
+    mobileLink: "#fff",
+    mobileBorder: "rgba(255,255,255,0.05)",
+    statsBg: BRAND.dark,
+    statsBorder: "rgba(133,255,0,0.15)",
+    statsCardBg: "rgba(255,255,255,0.02)",
+    statsCardHover: "rgba(133,255,0,0.05)",
+    statsNum: "#fff",
+    statsLabel: "rgba(255,255,255,0.4)",
+    aboutBg: "#fff",
+    aboutHeading: BRAND.dark,
+    aboutText: "#666",
+    aboutFeature: BRAND.dark,
+    servicesBg: BRAND.dark,
+    servicesHeading: "#fff",
+    servicesText: "rgba(255,255,255,0.5)",
+    servicesCardBg: "rgba(255,255,255,0.02)",
+    servicesCardBorder: "rgba(255,255,255,0.06)",
+    servicesFeatureText: "rgba(255,255,255,0.6)",
+    processBg: BRAND.light,
+    processHeading: BRAND.dark,
+    processText: "#888",
+    galleryBg: "#fff",
+    galleryHeading: BRAND.dark,
+    galleryBtnBg: BRAND.dark,
+    galleryBtnText: "#fff",
+    testimonialsBg: BRAND.light,
+    testimonialsHeading: BRAND.dark,
+    testimonialCardBg: "#fff",
+    testimonialCardBorder: "#eee",
+    testimonialText: "#555",
+    testimonialName: BRAND.dark,
+    testimonialLoc: "#999",
+    testimonialDivider: "#f0f0f0",
+    contactBg: BRAND.dark,
+    contactHeading: "#fff",
+    contactText: "rgba(255,255,255,0.5)",
+    contactLabel: "rgba(255,255,255,0.3)",
+    contactValue: "#fff",
+    inputBg: "rgba(255,255,255,0.03)",
+    inputBorder: "rgba(255,255,255,0.1)",
+    inputText: "#fff",
+    inputPlaceholder: "rgba(255,255,255,0.25)",
+    formCardBg: "rgba(255,255,255,0.02)",
+    formCardBorder: "rgba(255,255,255,0.06)",
+    footerBg: BRAND.midnight,
+    footerText: "rgba(255,255,255,0.4)",
+    footerHeading: "rgba(255,255,255,0.6)",
+    footerDivider: "rgba(255,255,255,0.06)",
+    footerCopy: "rgba(255,255,255,0.3)",
+    pageBg: BRAND.dark,
+    scrollTrack: BRAND.midnight,
+    mobileBtn: "#fff",
+    selectBg: BRAND.dark,
+  },
+  light: {
+    navBg: "rgba(255,255,255,0.97)",
+    navLink: "rgba(0,0,0,0.6)",
+    mobileMenuBg: "#fff",
+    mobileLink: BRAND.dark,
+    mobileBorder: "rgba(0,0,0,0.06)",
+    statsBg: "#fff",
+    statsBorder: "rgba(8,1,80,0.12)",
+    statsCardBg: "rgba(8,1,80,0.02)",
+    statsCardHover: "rgba(133,255,0,0.08)",
+    statsNum: BRAND.dark,
+    statsLabel: "rgba(8,1,80,0.45)",
+    aboutBg: "#f8f9fa",
+    aboutHeading: BRAND.dark,
+    aboutText: "#555",
+    aboutFeature: BRAND.dark,
+    servicesBg: "#fff",
+    servicesHeading: BRAND.dark,
+    servicesText: "#666",
+    servicesCardBg: "#f8f9fa",
+    servicesCardBorder: "rgba(0,0,0,0.08)",
+    servicesFeatureText: "#555",
+    processBg: "#f0f1f5",
+    processHeading: BRAND.dark,
+    processText: "#777",
+    galleryBg: "#f8f9fa",
+    galleryHeading: BRAND.dark,
+    galleryBtnBg: BRAND.dark,
+    galleryBtnText: "#fff",
+    testimonialsBg: "#fff",
+    testimonialsHeading: BRAND.dark,
+    testimonialCardBg: "#f8f9fa",
+    testimonialCardBorder: "#e8e8e8",
+    testimonialText: "#555",
+    testimonialName: BRAND.dark,
+    testimonialLoc: "#999",
+    testimonialDivider: "#e8e8e8",
+    contactBg: BRAND.dark,
+    contactHeading: "#fff",
+    contactText: "rgba(255,255,255,0.5)",
+    contactLabel: "rgba(255,255,255,0.3)",
+    contactValue: "#fff",
+    inputBg: "rgba(255,255,255,0.03)",
+    inputBorder: "rgba(255,255,255,0.1)",
+    inputText: "#fff",
+    inputPlaceholder: "rgba(255,255,255,0.25)",
+    formCardBg: "rgba(255,255,255,0.02)",
+    formCardBorder: "rgba(255,255,255,0.06)",
+    footerBg: BRAND.midnight,
+    footerText: "rgba(255,255,255,0.4)",
+    footerHeading: "rgba(255,255,255,0.6)",
+    footerDivider: "rgba(255,255,255,0.06)",
+    footerCopy: "rgba(255,255,255,0.3)",
+    pageBg: "#ffffff",
+    scrollTrack: "#e8e8e8",
+    mobileBtn: BRAND.dark,
+    selectBg: BRAND.dark,
+  },
 };
 
 // ─── ICONS (inline SVG for zero deps) ───────────────────────────────
@@ -65,6 +189,12 @@ const Icons = {
   Building: () => (
     <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
   ),
+  Sun: () => (
+    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  ),
+  Moon: () => (
+    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  ),
 };
 
 // ─── SCROLL ANIMATION HOOK ──────────────────────────────────────────
@@ -102,90 +232,7 @@ function Reveal({ children, delay = 0, className = "", direction = "up" }) {
   );
 }
 
-// ─── NAVBAR ─────────────────────────────────────────────────────────
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", h, { passive: true });
-    return () => window.removeEventListener("scroll", h);
-  }, []);
-
-  const navLinks = [
-    { label: "About", href: "#about" },
-    { label: "Services", href: "#services" },
-    { label: "Portfolio", href: "#projects" },
-    { label: "Testimonials", href: "#testimonials" },
-    { label: "Contact", href: "#contact" },
-  ];
-
-  return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
-      `}</style>
-      <header
-        style={{
-          position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
-          background: scrolled ? "rgba(8,1,80,0.97)" : "transparent",
-          backdropFilter: scrolled ? "blur(20px)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(133,255,0,0.1)" : "1px solid transparent",
-          transition: "all 0.4s cubic-bezier(0.22,1,0.36,1)",
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-        }}
-      >
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: scrolled ? 64 : 80, transition: "height 0.4s ease" }}>
-          <a href="#hero" style={{ textDecoration: "none", display: "flex", alignItems: "baseline", gap: 4 }}>
-            <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 900, fontSize: 28, color: "#fff", letterSpacing: "-0.03em" }}>AB</span>
-            <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 900, fontSize: 28, color: BRAND.accent, letterSpacing: "-0.03em" }}>PRO</span>
-            <span style={{ fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.4)", marginLeft: 6, letterSpacing: "0.1em" }}>LLC</span>
-          </a>
-
-          <nav style={{ display: "flex", alignItems: "center", gap: 36 }} className="nav-desktop">
-            {navLinks.map((l) => (
-              <a key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase", transition: "color 0.3s" }}
-                onMouseEnter={e => e.target.style.color = BRAND.accent}
-                onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.7)"}
-              >{l.label}</a>
-            ))}
-            <a href="#contact" style={{
-              background: BRAND.accent, color: BRAND.dark, padding: "10px 24px",
-              fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
-              textDecoration: "none", transition: "transform 0.3s, box-shadow 0.3s",
-            }}
-              onMouseEnter={e => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = `0 8px 30px ${BRAND.accent}40`; }}
-              onMouseLeave={e => { e.target.style.transform = ""; e.target.style.boxShadow = ""; }}
-            >Get Estimate</a>
-          </nav>
-
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="nav-mobile-btn" style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", display: "none" }}>
-            {mobileOpen ? <Icons.X /> : <Icons.Menu />}
-          </button>
-        </div>
-
-        {mobileOpen && (
-          <div style={{ background: BRAND.dark, padding: "24px", borderTop: `1px solid rgba(133,255,0,0.1)` }} className="nav-mobile-menu">
-            {navLinks.map((l) => (
-              <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} style={{ display: "block", color: "#fff", textDecoration: "none", padding: "12px 0", fontSize: 16, fontWeight: 500, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>{l.label}</a>
-            ))}
-            <a href="#contact" onClick={() => setMobileOpen(false)} style={{ display: "block", background: BRAND.accent, color: BRAND.dark, padding: "14px", textAlign: "center", fontWeight: 700, marginTop: 16, fontSize: 14, textDecoration: "none" }}>Get Your Free Estimate</a>
-          </div>
-        )}
-      </header>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .nav-desktop { display: none !important; }
-          .nav-mobile-btn { display: block !important; }
-        }
-      `}</style>
-    </>
-  );
-}
-
-// ─── HERO SECTION ───────────────────────────────────────────────────
+// ─── HERO SECTION (your hero-bg.jpg preserved) ──────────────────────
 function Hero() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => { setTimeout(() => setLoaded(true), 100); }, []);
@@ -193,22 +240,16 @@ function Hero() {
   return (
     <section id="hero" style={{
       position: "relative", minHeight: "100vh", display: "flex", alignItems: "center",
-      background: `linear-gradient(135deg, ${BRAND.dark} 0%, ${BRAND.midnight} 50%, #0d0066 100%)`,
+      background: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('/hero-bg.jpg') center/cover no-repeat`,
       overflow: "hidden", fontFamily: "'Plus Jakarta Sans', sans-serif",
     }}>
-      {/* Geometric pattern overlay */}
       <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 60px, rgba(255,255,255,0.5) 60px, rgba(255,255,255,0.5) 61px)` }} />
-      
-      {/* Gradient orbs */}
       <div style={{ position: "absolute", top: "-20%", right: "-10%", width: 600, height: 600, borderRadius: "50%", background: `radial-gradient(circle, ${BRAND.accent}15, transparent 70%)`, filter: "blur(80px)" }} />
       <div style={{ position: "absolute", bottom: "-10%", left: "-5%", width: 400, height: 400, borderRadius: "50%", background: `radial-gradient(circle, ${BRAND.accent}10, transparent 70%)`, filter: "blur(60px)" }} />
 
       <div style={{ position: "relative", zIndex: 10, maxWidth: 1280, margin: "0 auto", padding: "120px 24px 80px", width: "100%" }}>
         <div style={{ maxWidth: 800 }}>
-          <div style={{
-            opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(30px)",
-            transition: "all 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s",
-          }}>
+          <div style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(30px)", transition: "all 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 20px", background: "rgba(133,255,0,0.08)", border: "1px solid rgba(133,255,0,0.2)", borderRadius: 50, marginBottom: 32 }}>
               <Icons.Shield />
               <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", color: BRAND.accent, textTransform: "uppercase" }}>Licensed · Bonded · Insured</span>
@@ -268,17 +309,16 @@ function Hero() {
             </a>
           </div>
         </div>
+      </div>
 
-        {/* Scroll indicator */}
-        <div style={{
-          position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)",
-          display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
-          opacity: loaded ? 0.4 : 0, transition: "opacity 1s ease 1.2s",
-          animation: "float 2s ease-in-out infinite",
-        }}>
-          <span style={{ fontSize: 10, letterSpacing: "0.15em", color: "#fff", textTransform: "uppercase" }}>Scroll</span>
-          <Icons.ArrowDown />
-        </div>
+      <div style={{
+        position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+        opacity: loaded ? 0.4 : 0, transition: "opacity 1s ease 1.2s",
+        animation: "float 2s ease-in-out infinite",
+      }}>
+        <span style={{ fontSize: 10, letterSpacing: "0.15em", color: "#fff", textTransform: "uppercase" }}>Scroll</span>
+        <Icons.ArrowDown />
       </div>
 
       <style>{`
@@ -289,7 +329,8 @@ function Hero() {
 }
 
 // ─── STATS BAR ──────────────────────────────────────────────────────
-function StatsBar() {
+function StatsBar({ theme }) {
+  const t = T[theme];
   const stats = [
     { num: "1,200+", label: "Projects Completed", icon: <Icons.Building /> },
     { num: "15+", label: "Years Experience", icon: <Icons.Clock /> },
@@ -299,21 +340,17 @@ function StatsBar() {
 
   return (
     <section style={{ position: "relative", zIndex: 20, maxWidth: 1280, margin: "-48px auto 0", padding: "0 24px", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 2, background: BRAND.dark, border: `1px solid rgba(133,255,0,0.15)` }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 2, background: t.statsBg, border: `1px solid ${t.statsBorder}`, transition: "all 0.4s ease" }}>
         {stats.map((s, i) => (
           <Reveal key={i} delay={i * 0.1}>
-            <div style={{
-              padding: "32px 28px", background: "rgba(255,255,255,0.02)", display: "flex", alignItems: "center", gap: 20,
-              borderLeft: i > 0 ? "1px solid rgba(133,255,0,0.08)" : "none",
-              transition: "background 0.3s",
-            }}
-              onMouseEnter={e => e.currentTarget.style.background = "rgba(133,255,0,0.05)"}
-              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+            <div style={{ padding: "32px 28px", background: t.statsCardBg, display: "flex", alignItems: "center", gap: 20, borderLeft: i > 0 ? `1px solid ${t.statsBorder}` : "none", transition: "background 0.3s" }}
+              onMouseEnter={e => e.currentTarget.style.background = t.statsCardHover}
+              onMouseLeave={e => e.currentTarget.style.background = t.statsCardBg}
             >
               <div style={{ color: BRAND.accent, opacity: 0.7 }}>{s.icon}</div>
               <div>
-                <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 32, fontWeight: 700, color: "#fff", letterSpacing: "-0.02em" }}>{s.num}</div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</div>
+                <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 32, fontWeight: 700, color: t.statsNum, letterSpacing: "-0.02em", transition: "color 0.4s" }}>{s.num}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: t.statsLabel, textTransform: "uppercase", letterSpacing: "0.1em", transition: "color 0.4s" }}>{s.label}</div>
               </div>
             </div>
           </Reveal>
@@ -324,31 +361,30 @@ function StatsBar() {
 }
 
 // ─── ABOUT SECTION ──────────────────────────────────────────────────
-function About() {
+function About({ theme }) {
+  const t = T[theme];
   const features = ["Residential & Commercial", "Fully Licensed & Insured", "Transparent Quoting", "On-Time Completion", "15+ Year Track Record", "Post-Project Warranty"];
   return (
-    <section id="about" style={{ padding: "120px 24px", background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <section id="about" style={{ padding: "120px 24px", background: t.aboutBg, fontFamily: "'Plus Jakarta Sans', sans-serif", transition: "background 0.4s ease" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr", gap: 80, alignItems: "center" }} className="about-grid">
         <Reveal>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
               <div style={{ width: 40, height: 2, background: BRAND.accent }} />
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: BRAND.dark }}>About AB Pro</span>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: t.aboutHeading }}>About AB Pro</span>
             </div>
-            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", color: BRAND.dark, margin: "0 0 24px" }}>
+            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", color: t.aboutHeading, margin: "0 0 24px", transition: "color 0.4s" }}>
               We Listen. We Build.<br /><span style={{ color: BRAND.accent }}>We Deliver.</span>
             </h2>
-            <p style={{ fontSize: 17, fontWeight: 300, lineHeight: 1.8, color: "#666", maxWidth: 600, marginBottom: 40 }}>
+            <p style={{ fontSize: 17, fontWeight: 300, lineHeight: 1.8, color: t.aboutText, maxWidth: 600, marginBottom: 40, transition: "color 0.4s" }}>
               We're more than contractors — we're your neighbors. For over 15 years, we've built a reputation in Metro Detroit for doing things right. No cutting corners, no hidden fees. Just reliable service, high craftsmanship, and honest pricing that respects your budget.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
               {features.map((f, i) => (
                 <Reveal key={i} delay={i * 0.05}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0" }}>
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: `${BRAND.accent}18`, display: "flex", alignItems: "center", justifyContent: "center", color: BRAND.accent, flexShrink: 0 }}>
-                      <Icons.Check />
-                    </div>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: BRAND.dark }}>{f}</span>
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: `${BRAND.accent}18`, display: "flex", alignItems: "center", justifyContent: "center", color: BRAND.accent, flexShrink: 0 }}><Icons.Check /></div>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: t.aboutFeature, transition: "color 0.4s" }}>{f}</span>
                   </div>
                 </Reveal>
               ))}
@@ -356,15 +392,14 @@ function About() {
           </div>
         </Reveal>
       </div>
-      <style>{`
-        @media (min-width: 900px) { .about-grid { grid-template-columns: 1fr !important; } }
-      `}</style>
+      <style>{`@media (min-width: 900px) { .about-grid { grid-template-columns: 1fr !important; } }`}</style>
     </section>
   );
 }
 
 // ─── SERVICES SECTION ───────────────────────────────────────────────
-function Services() {
+function Services({ theme }) {
+  const t = T[theme];
   const [hovered, setHovered] = useState(null);
   const services = [
     { title: "Complete Rehabs", icon: <Icons.HardHat />, desc: "From gutting interiors to modern finishes: kitchens, bathrooms, basements, and full-home transformations.", features: ["Kitchen & Bath Renovations", "Basement Finishing", "Whole-Home Remodels"] },
@@ -373,42 +408,28 @@ function Services() {
   ];
 
   return (
-    <section id="services" style={{ padding: "120px 24px", background: BRAND.dark, fontFamily: "'Plus Jakarta Sans', sans-serif", position: "relative", overflow: "hidden" }}>
+    <section id="services" style={{ padding: "120px 24px", background: t.servicesBg, fontFamily: "'Plus Jakarta Sans', sans-serif", position: "relative", overflow: "hidden", transition: "background 0.4s ease" }}>
       <div style={{ position: "absolute", top: 0, right: 0, width: "40%", height: "100%", background: `linear-gradient(180deg, ${BRAND.accent}05, transparent 50%)` }} />
-      
       <div style={{ maxWidth: 1280, margin: "0 auto", position: "relative" }}>
         <Reveal>
           <div style={{ textAlign: "center", marginBottom: 80 }}>
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: BRAND.accent }}>Our Expertise</span>
-            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: "#fff", marginTop: 12, letterSpacing: "-0.02em" }}>Full-Service Contractors</h2>
-            <p style={{ maxWidth: 540, margin: "20px auto 0", fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.5)", lineHeight: 1.7 }}>
-              Clarity and consistency lead to great outcomes. Here's how we serve Metro Detroit.
-            </p>
+            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: t.servicesHeading, marginTop: 12, letterSpacing: "-0.02em", transition: "color 0.4s" }}>Full-Service Contractors</h2>
+            <p style={{ maxWidth: 540, margin: "20px auto 0", fontSize: 16, fontWeight: 300, color: t.servicesText, lineHeight: 1.7, transition: "color 0.4s" }}>Clarity and consistency lead to great outcomes. Here's how we serve Metro Detroit.</p>
           </div>
         </Reveal>
-
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
           {services.map((s, i) => (
             <Reveal key={i} delay={i * 0.12}>
-              <div
-                onMouseEnter={() => setHovered(i)}
-                onMouseLeave={() => setHovered(null)}
-                style={{
-                  padding: 48, border: `1px solid ${hovered === i ? `${BRAND.accent}40` : "rgba(255,255,255,0.06)"}`,
-                  background: hovered === i ? "rgba(133,255,0,0.03)" : "rgba(255,255,255,0.02)",
-                  transition: "all 0.4s cubic-bezier(0.22,1,0.36,1)", position: "relative", overflow: "hidden",
-                  cursor: "default", height: "100%", display: "flex", flexDirection: "column",
-                }}
-              >
+              <div onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(null)} style={{ padding: 48, border: `1px solid ${hovered === i ? `${BRAND.accent}40` : t.servicesCardBorder}`, background: hovered === i ? "rgba(133,255,0,0.03)" : t.servicesCardBg, transition: "all 0.4s cubic-bezier(0.22,1,0.36,1)", position: "relative", overflow: "hidden", cursor: "default", height: "100%", display: "flex", flexDirection: "column" }}>
                 <div style={{ position: "absolute", top: 0, left: 0, width: hovered === i ? "100%" : "0%", height: 2, background: BRAND.accent, transition: "width 0.6s ease" }} />
-                <div style={{ color: hovered === i ? BRAND.accent : "rgba(255,255,255,0.4)", transition: "color 0.3s", marginBottom: 28 }}>{s.icon}</div>
-                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 24, fontWeight: 700, color: "#fff", marginBottom: 16 }}>{s.title}</h3>
-                <p style={{ fontSize: 14, fontWeight: 300, color: "rgba(255,255,255,0.5)", lineHeight: 1.8, marginBottom: 28, flex: 1 }}>{s.desc}</p>
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24 }}>
+                <div style={{ color: hovered === i ? BRAND.accent : t.servicesText, transition: "color 0.3s", marginBottom: 28 }}>{s.icon}</div>
+                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 24, fontWeight: 700, color: t.servicesHeading, marginBottom: 16, transition: "color 0.4s" }}>{s.title}</h3>
+                <p style={{ fontSize: 14, fontWeight: 300, color: t.servicesText, lineHeight: 1.8, marginBottom: 28, flex: 1, transition: "color 0.4s" }}>{s.desc}</p>
+                <div style={{ borderTop: `1px solid ${t.servicesCardBorder}`, paddingTop: 24 }}>
                   {s.features.map((f, fi) => (
-                    <div key={fi} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.6)" }}>
-                      <div style={{ width: 5, height: 5, borderRadius: "50%", background: BRAND.accent, flexShrink: 0 }} />
-                      {f}
+                    <div key={fi} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, fontSize: 13, fontWeight: 500, color: t.servicesFeatureText, transition: "color 0.4s" }}>
+                      <div style={{ width: 5, height: 5, borderRadius: "50%", background: BRAND.accent, flexShrink: 0 }} />{f}
                     </div>
                   ))}
                 </div>
@@ -422,7 +443,8 @@ function Services() {
 }
 
 // ─── PROCESS SECTION ────────────────────────────────────────────────
-function Process() {
+function Process({ theme }) {
+  const t = T[theme];
   const steps = [
     { num: "01", title: "Consultation", desc: "We visit your property, listen to your vision, and assess the scope of work with no obligation." },
     { num: "02", title: "Proposal", desc: "You receive a transparent, itemized quote with clear timelines and no hidden fees." },
@@ -431,117 +453,108 @@ function Process() {
   ];
 
   return (
-    <section style={{ padding: "120px 24px", background: BRAND.light, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <section style={{ padding: "120px 24px", background: t.processBg, fontFamily: "'Plus Jakarta Sans', sans-serif", transition: "background 0.4s ease" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
         <Reveal>
           <div style={{ textAlign: "center", marginBottom: 80 }}>
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: BRAND.accent }}>How We Work</span>
-            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: BRAND.dark, marginTop: 12, letterSpacing: "-0.02em" }}>A Simple, Proven Process</h2>
+            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: t.processHeading, marginTop: 12, letterSpacing: "-0.02em", transition: "color 0.4s" }}>A Simple, Proven Process</h2>
           </div>
         </Reveal>
-
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 32 }}>
           {steps.map((s, i) => (
             <Reveal key={i} delay={i * 0.1}>
               <div style={{ position: "relative", padding: "0 8px" }}>
                 <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 72, fontWeight: 900, color: `${BRAND.accent}15`, lineHeight: 1, marginBottom: -20, position: "relative", zIndex: 0 }}>{s.num}</div>
                 <div style={{ position: "relative", zIndex: 1 }}>
-                  <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 22, fontWeight: 700, color: BRAND.dark, marginBottom: 12 }}>{s.title}</h3>
-                  <p style={{ fontSize: 14, fontWeight: 400, color: "#888", lineHeight: 1.8 }}>{s.desc}</p>
+                  <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 22, fontWeight: 700, color: t.processHeading, marginBottom: 12, transition: "color 0.4s" }}>{s.title}</h3>
+                  <p style={{ fontSize: 14, fontWeight: 400, color: t.processText, lineHeight: 1.8, transition: "color 0.4s" }}>{s.desc}</p>
                 </div>
-                {i < steps.length - 1 && (
-                  <div className="process-arrow" style={{ position: "absolute", top: 40, right: -16, color: `${BRAND.accent}40` }}>
-                    <Icons.ArrowRight />
-                  </div>
-                )}
+                {i < steps.length - 1 && (<div className="process-arrow" style={{ position: "absolute", top: 40, right: -16, color: `${BRAND.accent}40` }}><Icons.ArrowRight /></div>)}
               </div>
             </Reveal>
           ))}
         </div>
       </div>
-      <style>{`
-        @media (max-width: 768px) { .process-arrow { display: none; } }
-      `}</style>
+      <style>{`@media (max-width: 768px) { .process-arrow { display: none; } }`}</style>
     </section>
   );
 }
 
-// ─── GALLERY SECTION ────────────────────────────────────────────────
-function Gallery() {
-  const categories = ["All", "Rehabs", "Renovations", "Commercial"];
-  const [active, setActive] = useState("All");
-  const projects = [
-    { title: "Modern Kitchen Rehab", cat: "Rehabs", color: "#1a1a3e" },
-    { title: "Luxury Bathroom Remodel", cat: "Rehabs", color: "#2a1a4e" },
-    { title: "Basement Waterproofing", cat: "Renovations", color: "#1a2a3e" },
-    { title: "Full Exterior Siding", cat: "Renovations", color: "#3a1a2e" },
-    { title: "Commercial Buildout", cat: "Commercial", color: "#0a2a3e" },
-    { title: "Office Space Renovation", cat: "Commercial", color: "#1a3a2e" },
-  ];
+// ─── GALLERY SECTION (Sanity CMS powered) ───────────────────────────
+function Gallery({ theme }) {
+  const t = T[theme];
+  const [projects, setProjects] = useState([]);
+  const [hoveredId, setHoveredId] = useState(null);
 
-  const filtered = active === "All" ? projects : projects.filter(p => p.cat === active);
+  useEffect(() => {
+    getFeaturedProjects(6).then(setProjects).catch(console.error);
+  }, []);
 
   return (
-    <section id="projects" style={{ padding: "120px 24px", background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <section id="projects" style={{ padding: "120px 24px", background: t.galleryBg, fontFamily: "'Plus Jakarta Sans', sans-serif", transition: "background 0.4s ease" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <div style={{ textAlign: "center", marginBottom: 64 }}>
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: BRAND.accent }}>Our Portfolio</span>
-            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: BRAND.dark, marginTop: 12, letterSpacing: "-0.02em" }}>Highlights of Our Work</h2>
+            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: t.galleryHeading, marginTop: 12, letterSpacing: "-0.02em", transition: "color 0.4s" }}>Highlights of Our Work</h2>
           </div>
         </Reveal>
 
-        <Reveal>
-          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 48, flexWrap: "wrap" }}>
-            {categories.map(c => (
-              <button key={c} onClick={() => setActive(c)} style={{
-                padding: "10px 24px", fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
-                border: `1px solid ${active === c ? BRAND.dark : "#ddd"}`, cursor: "pointer",
-                background: active === c ? BRAND.dark : "transparent", color: active === c ? "#fff" : "#888",
-                transition: "all 0.3s",
-              }}>{c}</button>
-            ))}
+        {projects.length > 0 ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: 8 }}>
+            {projects.map((p, i) => {
+              const isHovered = hoveredId === p._id;
+              const imageUrl = p.coverImage ? urlFor(p.coverImage).width(800).height(600).fit("crop").url() : null;
+              return (
+                <Link to={`/projects/${p.slug.current}`} key={p._id} style={{ textDecoration: "none", position: "relative", aspectRatio: (i === 0 || i === 3) ? "2/1" : "1/1", overflow: "hidden", cursor: "pointer", gridColumn: (i === 0 || i === 3) ? "span 2" : "span 1", background: BRAND.dark }} className="gallery-item" onMouseEnter={() => setHoveredId(p._id)} onMouseLeave={() => setHoveredId(null)}>
+                  {imageUrl ? (
+                    <img src={imageUrl} alt={p.title} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s cubic-bezier(0.22,1,0.36,1)", transform: isHovered ? "scale(1.08)" : "scale(1)" }} />
+                  ) : (
+                    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${BRAND.dark}, ${BRAND.midnight})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg width="48" height="48" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    </div>
+                  )}
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent 60%)", opacity: isHovered ? 1 : 0, transition: "opacity 0.4s ease", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: 28 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.accent, marginBottom: 8 }}>{p.category}</span>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 22, fontWeight: 700, color: "#fff", margin: 0 }}>{p.title}</h3>
+                      <svg width="20" height="20" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-        </Reveal>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 8 }}>
-          {filtered.map((p, i) => (
-            <Reveal key={`${p.title}-${active}`} delay={i * 0.08}>
-              <div style={{
-                position: "relative", aspectRatio: i === 0 || i === 3 ? "2/1" : "1/1", overflow: "hidden",
-                background: `linear-gradient(135deg, ${p.color}, ${BRAND.dark})`, cursor: "pointer",
-                gridColumn: (i === 0 || i === 3) ? "span 2" : "span 1",
-              }}
-                className="gallery-item"
-              >
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: 8 }}>
+            {[0,1,2,3,4,5].map((i) => (
+              <div key={i} style={{ aspectRatio: (i === 0 || i === 3) ? "2/1" : "1/1", gridColumn: (i === 0 || i === 3) ? "span 2" : "span 1", background: `linear-gradient(135deg, ${["#1a1a3e","#2a1a4e","#1a2a3e","#3a1a2e","#0a2a3e","#1a3a2e"][i]}, ${BRAND.dark})`, position: "relative", overflow: "hidden" }} className="gallery-item">
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <div style={{ width: 60, height: 60, border: "1px solid rgba(255,255,255,0.15)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.2)" }}>
                     <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                   </div>
                 </div>
-                <div className="gallery-overlay" style={{
-                  position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent 60%)",
-                  display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: 32,
-                  opacity: 0, transition: "opacity 0.4s",
-                }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: BRAND.accent, textTransform: "uppercase" }}>{p.cat}</span>
-                  <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 24, fontWeight: 700, color: "#fff", marginTop: 6 }}>{p.title}</h3>
-                </div>
               </div>
-            </Reveal>
-          ))}
+            ))}
+          </div>
+        )}
+
+        <div style={{ textAlign: "center", marginTop: 48 }}>
+          <Link to="/projects" style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "16px 36px", background: t.galleryBtnBg, color: t.galleryBtnText, textDecoration: "none", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", textTransform: "uppercase", transition: "all 0.3s", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.15)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
+          >View All Projects <Icons.ArrowRight /></Link>
         </div>
       </div>
-      <style>{`
-        .gallery-item:hover .gallery-overlay { opacity: 1 !important; }
-        @media (max-width: 768px) { .gallery-item { grid-column: span 1 !important; } }
-      `}</style>
+      <style>{`@media (max-width: 768px) { .gallery-item { grid-column: span 1 !important; aspect-ratio: 1/1 !important; } }`}</style>
     </section>
   );
 }
 
-// ─── TESTIMONIALS ───────────────────────────────────────────────────
-function Testimonials() {
+// ─── TESTIMONIALS SECTION ───────────────────────────────────────────
+function Testimonials({ theme }) {
+  const t = T[theme];
   const reviews = [
     { name: "Marcus T.", loc: "Southfield, MI", text: "AB Pro completely transformed our kitchen. The team was professional, the pricing was transparent, and the result exceeded our expectations. Highly recommend!", rating: 5 },
     { name: "Sarah K.", loc: "Detroit, MI", text: "We hired AB Pro for a full basement finish. They handled permits, stayed on schedule, and communicated every step of the way. Five stars all around.", rating: 5 },
@@ -549,38 +562,29 @@ function Testimonials() {
   ];
 
   return (
-    <section id="testimonials" style={{ padding: "120px 24px", background: BRAND.light, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <section id="testimonials" style={{ padding: "120px 24px", background: t.testimonialsBg, fontFamily: "'Plus Jakarta Sans', sans-serif", transition: "background 0.4s ease" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
         <Reveal>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: BRAND.accent }}>Testimonials</span>
-            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: BRAND.dark, marginTop: 12, letterSpacing: "-0.02em" }}>What Our Clients Say</h2>
+            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: t.testimonialsHeading, marginTop: 12, letterSpacing: "-0.02em", transition: "color 0.4s" }}>What Our Clients Say</h2>
           </div>
         </Reveal>
-
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
           {reviews.map((r, i) => (
             <Reveal key={i} delay={i * 0.12}>
-              <div style={{
-                padding: 40, background: "#fff", border: "1px solid #eee",
-                position: "relative", height: "100%", display: "flex", flexDirection: "column",
-                transition: "all 0.3s",
-              }}
+              <div style={{ padding: 40, background: t.testimonialCardBg, border: `1px solid ${t.testimonialCardBorder}`, position: "relative", height: "100%", display: "flex", flexDirection: "column", transition: "all 0.3s" }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = `${BRAND.accent}40`; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 20px 60px rgba(0,0,0,0.06)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "#eee"; e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = t.testimonialCardBorder; e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
               >
                 <div style={{ position: "absolute", top: 28, right: 32, color: BRAND.accent }}><Icons.Quote /></div>
                 <div style={{ display: "flex", gap: 3, marginBottom: 20 }}>
-                  {Array.from({ length: r.rating }).map((_, si) => (
-                    <span key={si} style={{ color: "#FFB800" }}><Icons.Star /></span>
-                  ))}
+                  {Array.from({ length: r.rating }).map((_, si) => (<span key={si} style={{ color: "#FFB800" }}><Icons.Star /></span>))}
                 </div>
-                <p style={{ fontSize: 15, fontWeight: 400, color: "#555", lineHeight: 1.8, flex: 1, marginBottom: 28 }}>"{r.text}"</p>
-                <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 20 }}>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: BRAND.dark }}>{r.name}</div>
-                  <div style={{ fontSize: 12, color: "#999", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                    <Icons.MapPin /> {r.loc}
-                  </div>
+                <p style={{ fontSize: 15, fontWeight: 400, color: t.testimonialText, lineHeight: 1.8, flex: 1, marginBottom: 28, transition: "color 0.4s" }}>"{r.text}"</p>
+                <div style={{ borderTop: `1px solid ${t.testimonialDivider}`, paddingTop: 20 }}>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: t.testimonialName, transition: "color 0.4s" }}>{r.name}</div>
+                  <div style={{ fontSize: 12, color: t.testimonialLoc, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}><Icons.MapPin /> {r.loc}</div>
                 </div>
               </div>
             </Reveal>
@@ -591,8 +595,9 @@ function Testimonials() {
   );
 }
 
-// ─── CONTACT SECTION ────────────────────────────────────────────────
-function Contact() {
+// ─── CONTACT SECTION (themed) ───────────────────────────────────────
+function Contact({ theme }) {
+  const isDark = theme === "dark";
   const [status, setStatus] = useState("");
   const [focused, setFocused] = useState(null);
 
@@ -602,29 +607,40 @@ function Contact() {
     setTimeout(() => setStatus("success"), 1500);
   };
 
+  const bg = isDark ? BRAND.dark : "#fff";
+  const headingColor = isDark ? "#fff" : BRAND.dark;
+  const textColor = isDark ? "rgba(255,255,255,0.5)" : "#666";
+  const labelColor = isDark ? "rgba(255,255,255,0.3)" : "#999";
+  const valueColor = isDark ? "#fff" : BRAND.dark;
+  const inputBg = isDark ? "rgba(255,255,255,0.03)" : "#f8f9fa";
+  const inputBorderDefault = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+  const inputTextColor = isDark ? "#fff" : BRAND.dark;
+  const formBg = isDark ? "rgba(255,255,255,0.02)" : "#f8f9fa";
+  const formBorder = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+  const optionBg = isDark ? BRAND.dark : "#fff";
+  const glowColor = isDark ? `${BRAND.accent}08` : `${BRAND.accent}06`;
+
   const inputStyle = (name) => ({
     width: "100%", padding: "16px 20px", fontSize: 14, fontFamily: "'Plus Jakarta Sans', sans-serif",
-    border: `1px solid ${focused === name ? BRAND.accent : "rgba(255,255,255,0.1)"}`,
-    background: "rgba(255,255,255,0.03)", color: "#fff", outline: "none",
+    border: `1px solid ${focused === name ? BRAND.accent : inputBorderDefault}`,
+    background: inputBg, color: inputTextColor, outline: "none",
     transition: "border-color 0.3s, background 0.3s",
   });
 
   return (
-    <section id="contact" style={{ padding: "120px 24px", background: BRAND.dark, fontFamily: "'Plus Jakarta Sans', sans-serif", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", bottom: 0, right: 0, width: 500, height: 500, borderRadius: "50%", background: `radial-gradient(circle, ${BRAND.accent}08, transparent 70%)`, filter: "blur(60px)" }} />
-      
+    <section id="contact" style={{ padding: "120px 24px", background: bg, fontFamily: "'Plus Jakarta Sans', sans-serif", position: "relative", overflow: "hidden", transition: "background 0.4s ease" }}>
+      <div style={{ position: "absolute", bottom: 0, right: 0, width: 500, height: 500, borderRadius: "50%", background: `radial-gradient(circle, ${glowColor}, transparent 70%)`, filter: "blur(60px)" }} />
       <div style={{ maxWidth: 1280, margin: "0 auto", position: "relative" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 64 }} className="contact-grid">
           <Reveal>
             <div>
               <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: BRAND.accent }}>Get an Estimate</span>
-              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: "#fff", marginTop: 12, letterSpacing: "-0.02em", marginBottom: 24 }}>
+              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "clamp(36px, 4vw, 52px)", fontWeight: 700, color: headingColor, marginTop: 12, letterSpacing: "-0.02em", marginBottom: 24, transition: "color 0.4s" }}>
                 Ready to Start Your<br /><span style={{ color: BRAND.accent }}>Project?</span>
               </h2>
-              <p style={{ fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.5)", lineHeight: 1.8, maxWidth: 480, marginBottom: 48 }}>
+              <p style={{ fontSize: 16, fontWeight: 300, color: textColor, lineHeight: 1.8, maxWidth: 480, marginBottom: 48, transition: "color 0.4s" }}>
                 Don't wait for small problems to become big headaches. Fill out the form and our team will get back to you with a comprehensive, no-obligation estimate.
               </p>
-
               <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
                 {[
                   { icon: <Icons.Phone />, label: "Call Us", value: "(248) 864-1784", href: "tel:2488641784" },
@@ -632,18 +648,16 @@ function Contact() {
                   { icon: <Icons.MapPin />, label: "Office", value: "17515 W Nine Mile Rd, Southfield, MI", href: null },
                 ].map((c, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
-                    <div style={{ width: 44, height: 44, border: `1px solid ${BRAND.accent}30`, display: "flex", alignItems: "center", justifyContent: "center", color: BRAND.accent, flexShrink: 0 }}>
-                      {c.icon}
-                    </div>
+                    <div style={{ width: 44, height: 44, border: `1px solid ${BRAND.accent}30`, display: "flex", alignItems: "center", justifyContent: "center", color: BRAND.accent, flexShrink: 0 }}>{c.icon}</div>
                     <div>
-                      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>{c.label}</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: labelColor, marginBottom: 4, transition: "color 0.4s" }}>{c.label}</div>
                       {c.href ? (
-                        <a href={c.href} style={{ fontSize: 17, fontWeight: 400, color: "#fff", textDecoration: "none", transition: "color 0.3s" }}
+                        <a href={c.href} style={{ fontSize: 17, fontWeight: 400, color: valueColor, textDecoration: "none", transition: "color 0.3s" }}
                           onMouseEnter={e => e.target.style.color = BRAND.accent}
-                          onMouseLeave={e => e.target.style.color = "#fff"}
+                          onMouseLeave={e => e.target.style.color = valueColor}
                         >{c.value}</a>
                       ) : (
-                        <span style={{ fontSize: 17, fontWeight: 400, color: "#fff" }}>{c.value}</span>
+                        <span style={{ fontSize: 17, fontWeight: 400, color: valueColor, transition: "color 0.4s" }}>{c.value}</span>
                       )}
                     </div>
                   </div>
@@ -655,61 +669,39 @@ function Contact() {
           <Reveal delay={0.2}>
             {status === "success" ? (
               <div style={{ padding: 64, border: `1px solid ${BRAND.accent}30`, background: `${BRAND.accent}08`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", minHeight: 400 }}>
-                <div style={{ width: 64, height: 64, borderRadius: "50%", background: `${BRAND.accent}20`, display: "flex", alignItems: "center", justifyContent: "center", color: BRAND.accent, marginBottom: 24 }}>
-                  <Icons.Check />
-                </div>
-                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 28, fontWeight: 700, color: "#fff", marginBottom: 12 }}>Message Sent!</h3>
-                <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", marginBottom: 32 }}>We've received your request and will be in touch shortly.</p>
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: `${BRAND.accent}20`, display: "flex", alignItems: "center", justifyContent: "center", color: BRAND.accent, marginBottom: 24 }}><Icons.Check /></div>
+                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 28, fontWeight: 700, color: headingColor, marginBottom: 12, transition: "color 0.4s" }}>Message Sent!</h3>
+                <p style={{ fontSize: 15, color: textColor, marginBottom: 32, transition: "color 0.4s" }}>We've received your request and will be in touch shortly.</p>
                 <button onClick={() => setStatus("")} style={{ background: "none", border: `1px solid ${BRAND.accent}40`, color: BRAND.accent, padding: "10px 24px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Send Another Message</button>
               </div>
             ) : (
-              <div style={{ padding: 48, border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
+              <div style={{ padding: 48, border: `1px solid ${formBorder}`, background: formBg, transition: "all 0.4s ease" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>Full Name</label>
-                    <input
-                      type="text" placeholder="John Doe" style={inputStyle("name")}
-                      onFocus={() => setFocused("name")} onBlur={() => setFocused(null)}
-                    />
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: labelColor, marginBottom: 8, transition: "color 0.4s" }}>Full Name</label>
+                    <input type="text" placeholder="John Doe" style={inputStyle("name")} onFocus={() => setFocused("name")} onBlur={() => setFocused(null)} />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>Email</label>
-                    <input
-                      type="email" placeholder="john@example.com" style={inputStyle("email")}
-                      onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
-                    />
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: labelColor, marginBottom: 8, transition: "color 0.4s" }}>Email</label>
+                    <input type="email" placeholder="john@example.com" style={inputStyle("email")} onFocus={() => setFocused("email")} onBlur={() => setFocused(null)} />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>Service Needed</label>
-                    <select style={{ ...inputStyle("service"), appearance: "none", cursor: "pointer" }}
-                      onFocus={() => setFocused("service")} onBlur={() => setFocused(null)}
-                    >
-                      <option value="" style={{ background: BRAND.dark }}>Select a service...</option>
-                      <option value="Kitchen Remodel" style={{ background: BRAND.dark }}>Kitchen Remodel</option>
-                      <option value="Bathroom Remodel" style={{ background: BRAND.dark }}>Bathroom Remodel</option>
-                      <option value="Full Rehab" style={{ background: BRAND.dark }}>Full Rehab</option>
-                      <option value="Gas Line" style={{ background: BRAND.dark }}>Gas Line Installation</option>
-                      <option value="Commercial" style={{ background: BRAND.dark }}>Commercial Project</option>
-                      <option value="Other" style={{ background: BRAND.dark }}>Other</option>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: labelColor, marginBottom: 8, transition: "color 0.4s" }}>Service Needed</label>
+                    <select style={{ ...inputStyle("service"), appearance: "none", cursor: "pointer" }} onFocus={() => setFocused("service")} onBlur={() => setFocused(null)}>
+                      <option value="" style={{ background: optionBg }}>Select a service...</option>
+                      <option value="Kitchen Remodel" style={{ background: optionBg }}>Kitchen Remodel</option>
+                      <option value="Bathroom Remodel" style={{ background: optionBg }}>Bathroom Remodel</option>
+                      <option value="Full Rehab" style={{ background: optionBg }}>Full Rehab</option>
+                      <option value="Gas Line" style={{ background: optionBg }}>Gas Line Installation</option>
+                      <option value="Commercial" style={{ background: optionBg }}>Commercial Project</option>
+                      <option value="Other" style={{ background: optionBg }}>Other</option>
                     </select>
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>Message</label>
-                    <textarea
-                      rows={4} placeholder="Tell us about your project..." style={{ ...inputStyle("msg"), resize: "vertical" }}
-                      onFocus={() => setFocused("msg")} onBlur={() => setFocused(null)}
-                    />
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: labelColor, marginBottom: 8, transition: "color 0.4s" }}>Message</label>
+                    <textarea rows={4} placeholder="Tell us about your project..." style={{ ...inputStyle("msg"), resize: "vertical" }} onFocus={() => setFocused("msg")} onBlur={() => setFocused(null)} />
                   </div>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={status === "submitting"}
-                    style={{
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                      width: "100%", padding: "18px", background: BRAND.accent, color: BRAND.dark,
-                      border: "none", fontSize: 14, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      letterSpacing: "0.04em", textTransform: "uppercase", cursor: "pointer",
-                      transition: "all 0.3s", opacity: status === "submitting" ? 0.7 : 1,
-                    }}
+                  <button onClick={handleSubmit} disabled={status === "submitting"} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, width: "100%", padding: "18px", background: BRAND.accent, color: BRAND.dark, border: "none", fontSize: 14, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: "0.04em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.3s", opacity: status === "submitting" ? 0.7 : 1 }}
                     onMouseEnter={e => { if (status !== "submitting") { e.target.style.boxShadow = `0 8px 30px ${BRAND.accent}40`; e.target.style.transform = "translateY(-2px)"; } }}
                     onMouseLeave={e => { e.target.style.boxShadow = ""; e.target.style.transform = ""; }}
                   >
@@ -721,85 +713,25 @@ function Contact() {
           </Reveal>
         </div>
       </div>
-      <style>{`
-        @media (min-width: 900px) { .contact-grid { grid-template-columns: 1fr 1fr !important; } }
-      `}</style>
+      <style>{`@media (min-width: 900px) { .contact-grid { grid-template-columns: 1fr 1fr !important; } }`}</style>
     </section>
-  );
-}
-
-// ─── FOOTER ─────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer style={{ padding: "64px 24px 32px", background: BRAND.midnight, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 48, marginBottom: 48 }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 16 }}>
-              <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 900, fontSize: 24, color: "#fff" }}>AB</span>
-              <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 900, fontSize: 24, color: BRAND.accent }}>PRO</span>
-              <span style={{ fontSize: 10, fontWeight: 500, color: "rgba(255,255,255,0.3)", marginLeft: 6 }}>LLC</span>
-            </div>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>Full-service contractors serving Metro Detroit homeowners and businesses since 2009.</p>
-          </div>
-          <div>
-            <h4 style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", marginBottom: 20 }}>Navigation</h4>
-            {["About", "Services", "Portfolio", "Testimonials", "Contact"].map(l => (
-              <a key={l} href={`#${l.toLowerCase()}`} style={{ display: "block", fontSize: 14, color: "rgba(255,255,255,0.4)", textDecoration: "none", padding: "6px 0", transition: "color 0.3s" }}
-                onMouseEnter={e => e.target.style.color = BRAND.accent}
-                onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.4)"}
-              >{l}</a>
-            ))}
-          </div>
-          <div>
-            <h4 style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", marginBottom: 20 }}>Contact</h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
-                <span style={{ color: BRAND.accent }}><Icons.Phone /></span> (248) 864-1784
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
-                <span style={{ color: BRAND.accent }}><Icons.Mail /></span> Info@abprojectllc.com
-              </div>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 10, color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
-                <span style={{ color: BRAND.accent, marginTop: 2 }}><Icons.MapPin /></span> 17515 W Nine Mile Rd,<br/>Southfield, MI 48075
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© {new Date().getFullYear()} AB PRO LLC. All rights reserved.</p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>Created with Mogul Design Agency</p>
-        </div>
-      </div>
-    </footer>
   );
 }
 
 // ─── MAIN APP ───────────────────────────────────────────────────────
 export default function ABProRedesign() {
+  const { theme } = useOutletContext();
+
   return (
-    <div style={{ margin: 0, padding: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", overflowX: "hidden", background: BRAND.dark }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        ::selection { background: ${BRAND.accent}40; color: ${BRAND.dark}; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: ${BRAND.midnight}; }
-        ::-webkit-scrollbar-thumb { background: ${BRAND.accent}40; }
-        ::-webkit-scrollbar-thumb:hover { background: ${BRAND.accent}70; }
-        input::placeholder, textarea::placeholder, select { color: rgba(255,255,255,0.25); }
-      `}</style>
-      <Navbar />
+    <>
       <Hero />
-      <StatsBar />
-      <About />
-      <Services />
-      <Process />
-      <Gallery />
-      <Testimonials />
-      <Contact />
-      <Footer />
-    </div>
+      <StatsBar theme={theme} />
+      <About theme={theme} />
+      <Services theme={theme} />
+      <Process theme={theme} />
+      <Gallery theme={theme} />
+      <Testimonials theme={theme} />
+      <Contact theme={theme} />
+    </>
   );
 }
